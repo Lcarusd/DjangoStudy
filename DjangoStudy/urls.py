@@ -24,7 +24,3 @@ urlpatterns = [
     url(r'^', include('blog.urls')),
     url(r'^api-auth/', include('rest_framework.urls')),
 ]
-
-# Django路由系统是怎么样的
-# 正则表达式初窥
-# Django里的include机制

@@ -15,7 +15,7 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
     """
     Custom permission to only allow owners of an object to edit it.
     """
-    message = '需要登录才能继续操作'
+    message = '需登录才能继续操作'
 
     def has_object_permission(self, request, view, obj):
         # Read permissions are allowed to any request,
