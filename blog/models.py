@@ -9,6 +9,7 @@ from django.contrib.auth.models import User
 
 
 class Article(models.Model):
+    '''文章表'''
     STATUS_CHOICES = (
         ('PUBLIC', u'公开文章'),
         ('HIDE', u'隐藏文章'),
@@ -25,5 +26,6 @@ class Article(models.Model):
 
 
 class Like(models.Model):
+    '''点赞表'''
     user = models.ForeignKey(User)
     article = models.ForeignKey(Article)
