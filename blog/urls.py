@@ -7,7 +7,7 @@ from blog.views import (ArticleListView, ArticleView, UserDetail, UserLikeView,
 urlpatterns = [
     url(r'^$', api_root),
     url(r'^login/$', UserLoginView.as_view(), name=u'登录'),
-    url(r'^logout/$', UserLogoutView.as_view(), name=u'退出'),
+    url(r'^logout/$', UserLogoutView.as_view(), name=u'登出'),
     url(r'^users/$', UserListView.as_view(), name=u'用户列表和创建'),
     url(r'^user/(?P<pk>[0-9]+)/$',
         UserDetail.as_view(), name=u'用户详情表'),
