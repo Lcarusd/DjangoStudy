@@ -16,17 +16,16 @@ from blog.serializers import (ArticleListSerializer, ArticleSerializer,
                               UserSerializer)
 
 # Create your views here.
-# test gi
 
 
 @api_view(['GET'])
 def api_root(request, format=None):
     return Response({
+        'login': reverse('登录', request=request, format=format),
+        'logout': reverse('登出', request=request, format=format),
         'users': reverse('用户列表和创建', request=request, format=format),
         'articles': reverse('文件列表和创建', request=request, format=format),
         'likes': reverse('点赞创建', request=request, format=format),
-        'login': reverse('登录', request=request, format=format),
-        'logout': reverse('登出', request=request, format=format)
     })
 
     '''
@@ -81,6 +80,9 @@ class UserDetail(generics.RetrieveAPIView):
 
 
 class UserLikeView(generics.CreateAPIView):
+    '''
+    用户点赞视图
+    '''
 
     serializer_class = LikeSerializer
     permission_classes = (permissions.IsAuthenticated, )
