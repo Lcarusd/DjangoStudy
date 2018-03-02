@@ -28,6 +28,12 @@ def api_root(request, format=None):
         'logout': reverse('登出', request=request, format=format)
     })
 
+    '''
+    reverse:反解析url以直接访问其它视图方法
+    第一个参数就直接添入要使用的view方法
+    第二个args里边顺序填入方法的参数
+    '''
+
 
 class UserLoginView(generics.GenericAPIView):
     '''登录'''
