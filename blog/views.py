@@ -16,7 +16,7 @@ from blog.serializers import (ArticleListSerializer, ArticleSerializer,
                               UserSerializer)
 
 # Create your views here.
-# test git
+# test gi
 
 
 @api_view(['GET'])
