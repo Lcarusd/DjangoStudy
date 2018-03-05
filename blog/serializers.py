@@ -44,8 +44,8 @@ class ArticleListSerializer(serializers.ModelSerializer):
 
     def get_like_users(self, obj):
         # obj  为一个文章实例
-        data = list(
-            Like.objects.filter(article=obj).order_by('-id').values_list('user__username', flat=True))
+        data = list(Like.objects.filter(article=obj).order_by(
+            '-id').values_list('user__username', flat=True))
         return data
 
     def get_user(self, obj):
