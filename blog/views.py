@@ -93,10 +93,10 @@ class ArticleListView(generics.ListCreateAPIView):
     queryset = Article.objects.all().order_by('-like_count')
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
     filter_fields = ('status', 'user')
-    search_fields = ('title', 'user')
+    search_fields = ('title', 'user__username')
 
     # IsAuthenticated 登陆用户可使用此视图
-    permission_classes = (permissions.IsAuthenticated, IsOwnerOrReadOnly)
+    permission_classes = (permissions.IsAuthenticated, )
 
     def get_queryset(self):
         user = self.request.user
