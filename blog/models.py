@@ -10,10 +10,12 @@ from django.contrib.auth.models import User
 
 class Article(models.Model):
     '''文章表'''
+
     STATUS_CHOICES = (
         ('PUBLIC', u'公开文章'),
         ('HIDE', u'隐藏文章'),
     )
+
     user = models.ForeignKey(User, related_name='article', verbose_name=u'作者')
     title = models.CharField(u'文章标题', max_length=255)
     body_text = models.TextField(u'文章内容')

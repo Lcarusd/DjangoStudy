@@ -66,17 +66,16 @@ class ArticleSerializer(serializers.ModelSerializer):
 
 
 class LikeSerializer(serializers.ModelSerializer):
-    # 应该只能点赞公开的文章
+    # 只有公开的文章可以点赞
     def validate(self, data):
 
         like = Like.objects.filter(
-            article=data['article'],
-            user=self.context['request'].user).first()
+            article=data['article'], user=self.context['request'].user).first()
         if data['article'].status == u'HIDE':
             raise serializers.ValidationError(u'文章未找到')
         elif like:
             raise serializers.ValidationError(u'已经点过赞了')
-            # 向data中追加了user以供create时使用
+        # 向data中追加了user以供create时使用
         data['user'] = self.context['request'].user
         return data
 
