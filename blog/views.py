@@ -33,6 +33,7 @@ def api_root(request, format=None):
         'users': reverse('用户列表和创建', request=request, format=format),
         'articles': reverse('文件列表和创建', request=request, format=format),
         'likes': reverse('点赞创建', request=request, format=format),
+        'page': reverse('分页', request=request, format=format)
     })
 
     '''
@@ -140,3 +141,7 @@ class ArticleView(generics.RetrieveUpdateDestroyAPIView):
             return Article.objects.filter(Q(status='PUBLIC') | Q(user=user))
         else:
             return Article.objects.filter(status='PUBLIC')
+
+
+class PageListView(generics.ListCreateAPIView):
+    pass
