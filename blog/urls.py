@@ -13,6 +13,8 @@ urlpatterns = [
     url(r'^articles/$', ArticleListView.as_view(), name=u'文件列表和创建'),
     url(r'^article/(?P<pk>[0-9]+)/$', ArticleView.as_view(), name=u'文章的查|删|改'),
     url(r'^likes/$', UserLikeView.as_view(), name=u'点赞创建'),
+
+    url(r'^page/$', PageListView.as_view(), name=u'分页')
 ]
 
 # urlpatterns = [
