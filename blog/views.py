@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 from django.contrib.auth.models import User
 from django.db.models import Q
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, generics, permissions
+from rest_framework import filters, generics, permissions, pagination
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
@@ -16,6 +16,13 @@ from blog.serializers import (ArticleListSerializer, ArticleSerializer,
                               UserSerializer)
 
 # Create your views here.
+
+
+class CommonPagination(pagination.PageNumberPagination):
+    '''分页器'''
+    max_page_size = 500
+    page_size_query_param = 'size'
+    page_size = 10
 
 
 @api_view(['GET'])
@@ -97,6 +104,7 @@ class ArticleListView(generics.ListCreateAPIView):
 
     # IsAuthenticated 登陆用户可使用此视图
     permission_classes = (permissions.IsAuthenticated, )
+    pagination_class = CommonPagination  # 分页
 
     def get_queryset(self):
         user = self.request.user

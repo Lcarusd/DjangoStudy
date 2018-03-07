@@ -14,10 +14,10 @@ class UserLoginSerializer(serializers.Serializer):
 
     def validate(self, data):
         '''验证数据'''
+        # 用户名校验
         user = User.objects.filter(username__iexact=data['username']).first()
-        # 检查密码是否相同
+        # 密码校验
         if user and user.check_password(data['password']):
-            # 相同就登录
             login(self.context['request'], user)
         else:
             raise serializers.ValidationError(u'登录失败')

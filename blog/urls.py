@@ -14,7 +14,3 @@ urlpatterns = [
     url(r'^article/(?P<pk>[0-9]+)/$', ArticleView.as_view(), name=u'文章的查|删|改'),
     url(r'^likes/$', UserLikeView.as_view(), name=u'点赞创建'),
 ]
-
-# urlpatterns = [
-#   url(正则表达式, view函数，参数，别名)
-# ]
