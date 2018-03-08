@@ -8,4 +8,14 @@
 6. tags列表接口
 7. 文章列表增加tags的显示、筛选
 8.tags频次接口 [{"name":"tag1","count":1},{"name":"tag2", "count":222}]
-  
+
+知识点：
+多对多关系
+
+Django signals：
+接收器
+连接接收器
+连接发送器
+
+jieba库
+taggit库
