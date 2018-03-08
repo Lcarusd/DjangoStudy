@@ -99,17 +99,19 @@ class ArticleListView(generics.ListCreateAPIView):
 
     queryset = Article.objects.all().order_by('-like_count')
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
-    filter_fields = ('status', 'user')
+    filter_fields = ('status', 'users')
     search_fields = ('title', 'user__username')
 
     # IsAuthenticated 登陆用户可使用此视图
     permission_classes = (permissions.IsAuthenticated, )
-    pagination_class = CommonPagination  # 分页
+
+    # 分页
+    pagination_class = CommonPagination
 
     def get_queryset(self):
         user = self.request.user
         if user and user.is_authenticated:
-            return Article.objects.filter(Q(status='PUBLIC') | Q(user=user))
+            return Article.objects.filter(Q(status='PUBLIC') | Q(users=user))
         else:
             return Article.objects.filter(status='PUBLIC')
 
@@ -133,6 +135,7 @@ class ArticleView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = ArticleSerializer
     # 增加了文章所有者的权限判断
     permission_classes = (permissions.IsAuthenticated, IsOwnerOrReadOnly)
+    # permission_classes = (permissions.IsAuthenticated)
 
     def get_queryset(self):
         user = self.request.user

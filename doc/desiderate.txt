@@ -1,6 +1,6 @@
 需求：
 0. 新增或者编辑文章的时候通过jieba分词拾取tags、需要在文章中记录tags
-1. 一篇上线文章可以由多个作者同时编辑
+1. 一篇上线文章可以由多个作者同时编辑（只有登录作者可以编辑）
 2. 如果有作者编辑、则通过signals记录 包含编辑人、编辑文章、时间、编辑前和编辑后的文章、标题、tags(有现成的库)
 3. 记录的列表接口，可以对编辑人、编辑文章进行筛选
 4. 可通过记录回退到任意记录
@@ -9,10 +9,27 @@
 7. 文章列表增加tags的显示、筛选
 8.tags频次接口 [{"name":"tag1","count":1},{"name":"tag2", "count":222}]
 
+记录表：
+编辑人
+文章
+时间
+编辑前标题
+编辑前内容
+tags = manytomany()
+
+
+文章：
+tags = manytomany(tag)
+users = manytomany(user)
+
+tag:
+name
+count 在文章的tags上监听m2m_changed信号，对count进行修改。注意数据库脏读问题。
+
 知识点：
 多对多关系
 
-Django signals：
+Django signals：blinker库
 接收器
 连接接收器
 连接发送器

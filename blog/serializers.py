@@ -40,7 +40,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 class ArticleListSerializer(serializers.ModelSerializer):
     like_users = serializers.SerializerMethodField()
-    user = serializers.SerializerMethodField()
+    users = serializers.SerializerMethodField()
 
     def get_like_users(self, obj):
         # obj  为一个文章实例
@@ -48,15 +48,14 @@ class ArticleListSerializer(serializers.ModelSerializer):
             '-id').values_list('user__username', flat=True))
         return data
 
-    def get_user(self, obj):
+    def get_users(self, obj):
         # 获取文章作者名称
-        queryset = Article.objects.filter(user__id=obj.user_id).values_list(
-            'user__username', flat=True).distinct()
-        return queryset
+        return obj.users.all().values_list(
+            'username', flat=True)
 
     class Meta:
         model = Article
-        fields = ('id', 'title', 'user', 'like_count', 'like_users')
+        fields = ('id', 'title', 'users', 'like_count', 'like_users')
 
 
 class ArticleSerializer(serializers.ModelSerializer):
