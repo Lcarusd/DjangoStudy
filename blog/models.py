@@ -17,6 +17,8 @@ class Article(models.Model):
     )
 
     user = models.ForeignKey(User, related_name='article', verbose_name=u'作者')
+    # user = models.ManyToManyField(
+    #     User, related_name='article', verbose_name=u'作者')
     title = models.CharField(u'文章标题', max_length=255)
     body_text = models.TextField(u'文章内容')
     like_count = models.IntegerField(u'文章被点赞的次数', default=0)
@@ -31,3 +33,8 @@ class Like(models.Model):
     '''点赞表'''
     user = models.ForeignKey(User)  # 用户
     article = models.ForeignKey(Article)    # 文章
+
+
+class Author(models.Model):
+    '''作者表'''
+    pass
