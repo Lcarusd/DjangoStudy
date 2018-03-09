@@ -138,8 +138,8 @@ class ArticleView(generics.RetrieveUpdateDestroyAPIView):
     # permission_classes = (permissions.IsAuthenticated)
 
     def get_queryset(self):
-        user = self.request.user
-        if user and user.is_authenticated:
-            return Article.objects.filter(Q(status='PUBLIC') | Q(user=user))
+        users = self.request.user
+        if users and users.is_authenticated:
+            return Article.objects.filter(Q(status='PUBLIC') | Q(users=users))
         else:
             return Article.objects.filter(status='PUBLIC')
