@@ -7,7 +7,7 @@
 5. 任意两个记录的对比接口(一个文章) 
 6. tags列表接口
 7. 文章列表增加tags的显示、筛选
-8.tags频次接口 [{"name":"tag1","count":1},{"name":"tag2", "count":222}]
+8. tags频次接口 [{"name":"tag1","count":1},{"name":"tag2", "count":222}]
 
 记录表：
 编辑人
