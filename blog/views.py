@@ -109,9 +109,9 @@ class ArticleListView(generics.ListCreateAPIView):
     pagination_class = CommonPagination
 
     def get_queryset(self):
-        users = self.request.user
-        if users and users.is_authenticated:
-            return Article.objects.filter(Q(status='PUBLIC') | Q(users=users))
+        user = self.request.user
+        if user and user.is_authenticated:
+            return Article.objects.filter(Q(status='PUBLIC') | Q(user=user))
         else:
             return Article.objects.filter(status='PUBLIC')
 

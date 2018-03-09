@@ -21,7 +21,7 @@ class Article(models.Model):
         ('HIDE', u'隐藏文章'),
     )
 
-    # user = models.ForeignKey(User, related_name='article', verbose_name=u'作者')
+    # users = models.ForeignKey(User, related_name='article', verbose_name=u'作者')
     users = models.ManyToManyField(
         User, related_name='article', verbose_name=u'作者')
     title = models.CharField(u'文章标题', max_length=255)
