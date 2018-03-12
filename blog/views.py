@@ -9,20 +9,13 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 
-from blog.models import Article
+from blog.models import Article, Tags, Record
 from blog.permissions import IsOwnerOrReadOnly
 from blog.serializers import (ArticleListSerializer, ArticleSerializer,
                               LikeSerializer, UserLoginSerializer,
                               UserSerializer)
 
 # Create your views here.
-
-
-class CommonPagination(pagination.PageNumberPagination):
-    '''分页器'''
-    max_page_size = 500
-    page_size_query_param = 'size'
-    page_size = 10
 
 
 @api_view(['GET'])
@@ -33,13 +26,17 @@ def api_root(request, format=None):
         'users': reverse('用户列表和创建', request=request, format=format),
         'articles': reverse('文件列表和创建', request=request, format=format),
         'likes': reverse('点赞创建', request=request, format=format),
+        'records': reverse('记录列表', request=request, format=format),
+        'tags': reverse('标签创建', request=request, format=format),
+
     })
 
-    '''
-    reverse:反解析url以直接访问其它视图方法
-    第一个参数就直接添入要使用的view方法
-    第二个args里边顺序填入方法的参数
-    '''
+
+class CommonPagination(pagination.PageNumberPagination):
+    '''分页器'''
+    max_page_size = 500
+    page_size_query_param = 'size'
+    page_size = 10
 
 
 class UserLoginView(generics.GenericAPIView):
@@ -69,6 +66,7 @@ class UserLogoutView(generics.GenericAPIView):
 
 class UserListView(generics.ListCreateAPIView):
     '''
+    user列表视图
     继承ListCreateAPIView,包含创建、列表
     '''
     queryset = User.objects.all()
@@ -79,6 +77,7 @@ class UserListView(generics.ListCreateAPIView):
 
 class UserDetail(generics.RetrieveAPIView):
     '''
+    user详情页视图
     GET:返回一个现有用户实例
     '''
     queryset = User.objects.all()
@@ -96,7 +95,7 @@ class UserLikeView(generics.CreateAPIView):
 
 
 class ArticleListView(generics.ListCreateAPIView):
-
+    '''文章列表视图'''
     queryset = Article.objects.all().order_by('-like_count')
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
     filter_fields = ('status', 'users')
@@ -130,6 +129,7 @@ class ArticleListView(generics.ListCreateAPIView):
 
 
 class ArticleView(generics.RetrieveUpdateDestroyAPIView):
+    '''文章详情页视图'''
     queryset = Article.objects.all()
     # 复用了文件列表中的序列化
     serializer_class = ArticleSerializer
@@ -143,3 +143,28 @@ class ArticleView(generics.RetrieveUpdateDestroyAPIView):
             return Article.objects.filter(Q(status='PUBLIC') | Q(users=users))
         else:
             return Article.objects.filter(status='PUBLIC')
+
+
+class RecordListView(generics.CreateAPIView):
+    '''记录列表接口'''
+    queryset = Record.objects.all()
+    filter_backends = (DjangoFilterBackend, filters.SearchFilter)
+    filter_fields = ('user', 'article')
+
+    # 权限控制，登陆用户可使用此视图
+    permission_classes = (permissions.IsAuthenticated, )
+
+
+class TagListView(generics.ListCreateAPIView):
+    '''标签列表接口'''
+    queryset = Tags.objects.all()
+    filter_backends = (DjangoFilterBackend, filters.SearchFilter)
+    filter_fields = ('', '')     # 字段筛选
+
+    # IsAuthenticated 登陆用户可使用此视图
+    permission_classes = (permissions.IsAuthenticated, )
+
+
+class TagView(generics.RetrieveUpdateDestroyAPIView):
+    '''标签查删改接口'''
+    pass

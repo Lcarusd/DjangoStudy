@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.db.models import F
 from rest_framework import serializers
 
-from blog.models import Article, Like
+from blog.models import Article, Like, Record
 
 
 class UserLoginSerializer(serializers.Serializer):
@@ -64,15 +64,17 @@ class ArticleSerializer(serializers.ModelSerializer):
         fields = ('id', 'title', 'body_text', 'status', 'users')
 
     # 用来处理多对多关系的文章建立
-    def create(self, validated_data):
-        users = validated_data.pop('users')
-        instance = Article.objects.create(**validated_data)
-        instance.users = users
-        return instance
+    # def create(self, validated_data):
+    #     users = validated_data.pop('users')
+    #     instance = Article.objects.create(**validated_data)
+    #     instance.users = users
+    #     return instance
 
 
 class LikeSerializer(serializers.ModelSerializer):
+    '''用户点赞序列化'''
     # 只有公开的文章可以点赞
+
     def validate(self, data):
 
         like = Like.objects.filter(
@@ -95,3 +97,16 @@ class LikeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Like
         fields = ('article', )
+
+
+class RecordListSerializer(serializers.ModelSerializer):
+    '''记录列表的序列化'''
+    pass
+
+
+class RecordSerializer(serializers.ModelSerializer):
+    '''记录列表的序列化需渲染的字段'''
+    class Meta:
+        model = Record
+        # fields = ('id', 'user', 'article', 'update_datetime', 'before_title')
+        fields = '__all__'
