@@ -25,6 +25,7 @@ class UserLoginSerializer(serializers.Serializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+    '''用户列表、详情页序列化'''
     class Meta:
         model = User
         # 列表展示的字段、创建时需要的字段
@@ -63,13 +64,6 @@ class ArticleSerializer(serializers.ModelSerializer):
         model = Article
         fields = ('id', 'title', 'body_text', 'status', 'users')
 
-    # 用来处理多对多关系的文章建立
-    # def create(self, validated_data):
-    #     users = validated_data.pop('users')
-    #     instance = Article.objects.create(**validated_data)
-    #     instance.users = users
-    #     return instance
-
 
 class LikeSerializer(serializers.ModelSerializer):
     '''用户点赞序列化'''
@@ -100,12 +94,10 @@ class LikeSerializer(serializers.ModelSerializer):
 
 
 class RecordListSerializer(serializers.ModelSerializer):
-    '''记录列表的序列化'''
     pass
 
 
 class RecordSerializer(serializers.ModelSerializer):
-    '''记录列表的序列化需渲染的字段'''
     class Meta:
         model = Record
         # fields = ('id', 'user', 'article', 'update_datetime', 'before_title')
