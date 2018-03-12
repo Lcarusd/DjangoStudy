@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.db.models import F
 from rest_framework import serializers
 
-from blog.models import Article, Like, Record
+from blog.models import Article, Like, Record, Tags
 
 
 class UserLoginSerializer(serializers.Serializer):
@@ -40,11 +40,12 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class ArticleListSerializer(serializers.ModelSerializer):
+    '''文章列表序列化'''
     like_users = serializers.SerializerMethodField()
     users = serializers.SerializerMethodField()
 
     def get_like_users(self, obj):
-        # obj  为一个文章实例
+        # obj为一个Article实例
         data = list(Like.objects.filter(article=obj).order_by(
             '-id').values_list('user__username', flat=True))
         return data
@@ -60,9 +61,22 @@ class ArticleListSerializer(serializers.ModelSerializer):
 
 
 class ArticleSerializer(serializers.ModelSerializer):
+    '''文章创建序列化'''
+    tags = serializers.ListField(
+        child=serializers.CharField()
+    )
+
+    def create(self, validated_data):
+        tags = validated_data.pop('tags')
+        instance = super(ArticleSerializer, self).create(validated_data)
+        for tag in tags:
+            Tag.objects.get_or_create()
+        instance.users.add(self.context['request'].user)
+        return instance
+
     class Meta:
         model = Article
-        fields = ('id', 'title', 'body_text', 'status', 'users')
+        fields = ('id', 'title', 'body_text', 'status', 'tags')
 
 
 class LikeSerializer(serializers.ModelSerializer):
@@ -94,11 +108,19 @@ class LikeSerializer(serializers.ModelSerializer):
 
 
 class RecordListSerializer(serializers.ModelSerializer):
-    pass
+    '''记录列表序列化'''
+    class Meta:
+        model = Record
+        fields = ('id', 'user', 'article', 'update_datetime', 'before_title')
+        # fields = ('update_datetime', 'before_title')
 
 
 class RecordSerializer(serializers.ModelSerializer):
+    '''记录详情序列化'''
+
+
+class TagListSerializer(serializers.ModelSerializer):
+    '''tag列表信息序列化'''
     class Meta:
-        model = Record
-        # fields = ('id', 'user', 'article', 'update_datetime', 'before_title')
-        fields = '__all__'
+        model = Tags
+        fields = ('id', 'name', 'count')

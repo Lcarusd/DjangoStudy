@@ -10,10 +10,10 @@ from rest_framework.response import Response
 from rest_framework.reverse import reverse
 
 from blog.models import Article, Tags, Record
-from blog.permissions import IsOwnerOrReadOnly
+# from blog.permissions import
 from blog.serializers import (ArticleListSerializer, ArticleSerializer,
-                              LikeSerializer, UserLoginSerializer,
-                              UserSerializer)
+                              LikeSerializer, UserLoginSerializer, UserSerializer,
+                              RecordListSerializer, TagListSerializer)
 
 # Create your views here.
 
@@ -28,7 +28,6 @@ def api_root(request, format=None):
         'likes': reverse('点赞创建', request=request, format=format),
         'records': reverse('记录列表', request=request, format=format),
         'tags': reverse('标签创建', request=request, format=format),
-
     })
 
 
@@ -100,13 +99,12 @@ class ArticleListView(generics.ListCreateAPIView):
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
     filter_fields = ('status', 'users')
     search_fields = ('title', 'user__username')
-
     # IsAuthenticated 登陆用户可使用此视图
     permission_classes = (permissions.IsAuthenticated, )
-
     # 分页
     pagination_class = CommonPagination
 
+    # 校验用户，确定所需展示的文章
     def get_queryset(self):
         user = self.request.user
         if user and user.is_authenticated:
@@ -125,7 +123,7 @@ class ArticleListView(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         # 创建前传入user
-        serializer.save(user=self.request.user)
+        serializer.save()
 
 
 class ArticleView(generics.RetrieveUpdateDestroyAPIView):
@@ -134,7 +132,7 @@ class ArticleView(generics.RetrieveUpdateDestroyAPIView):
     # 复用了文件列表中的序列化
     serializer_class = ArticleSerializer
     # 增加了文章所有者的权限判断
-    permission_classes = (permissions.IsAuthenticated, IsOwnerOrReadOnly)
+    permission_classes = (permissions.IsAuthenticated,)
     # permission_classes = (permissions.IsAuthenticated)
 
     def get_queryset(self):
@@ -145,26 +143,33 @@ class ArticleView(generics.RetrieveUpdateDestroyAPIView):
             return Article.objects.filter(status='PUBLIC')
 
 
-class RecordListView(generics.CreateAPIView):
-    '''记录列表接口'''
+class RecordListView(generics.ListAPIView):
+    '''
+    记录列表接口 用于展示修改记录与筛选字段(编辑人、编辑文章)
+    '''
     queryset = Record.objects.all()
-    filter_backends = (DjangoFilterBackend, filters.SearchFilter)
+    # 筛选器
+    filter_backends = (DjangoFilterBackend,)
     filter_fields = ('user', 'article')
 
-    # 权限控制，登陆用户可使用此视图
-    permission_classes = (permissions.IsAuthenticated, )
+    # 展示修改记录
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            self.serializer_class = RecordListSerializer
+        return super(RecordListView, self).get_serializer_class()
 
 
-class TagListView(generics.ListCreateAPIView):
-    '''标签列表接口'''
+class TagListView(generics.ListAPIView):
+    '''tag列表接口 用于展示标签信息及使用频次'''
     queryset = Tags.objects.all()
-    filter_backends = (DjangoFilterBackend, filters.SearchFilter)
-    filter_fields = ('', '')     # 字段筛选
 
-    # IsAuthenticated 登陆用户可使用此视图
-    permission_classes = (permissions.IsAuthenticated, )
+    # 展示tag信息
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            self.serializer_class = TagListSerializer
+        return super(TagListView, self).get_serializer_class()
 
 
 class TagView(generics.RetrieveUpdateDestroyAPIView):
-    '''标签查删改接口'''
+    '''tag详情页接口 tag的查|删|改'''
     pass
