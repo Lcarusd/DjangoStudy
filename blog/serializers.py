@@ -63,6 +63,13 @@ class ArticleSerializer(serializers.ModelSerializer):
         model = Article
         fields = ('id', 'title', 'body_text', 'status', 'users')
 
+    # 用来处理多对多关系的文章建立
+    def create(self, validated_data):
+        users = validated_data.pop('users')
+        instance = Article.objects.create(**validated_data)
+        instance.users = users
+        return instance
+
 
 class LikeSerializer(serializers.ModelSerializer):
     # 只有公开的文章可以点赞
