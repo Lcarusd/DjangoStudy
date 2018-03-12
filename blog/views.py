@@ -111,7 +111,7 @@ class ArticleListView(generics.ListCreateAPIView):
     def get_queryset(self):
         user = self.request.user
         if user and user.is_authenticated:
-            return Article.objects.filter(Q(status='PUBLIC') | Q(user=user))
+            return Article.objects.filter(Q(status='PUBLIC') | Q(users__in=[user]))
         else:
             return Article.objects.filter(status='PUBLIC')
 

@@ -61,7 +61,7 @@ class ArticleListSerializer(serializers.ModelSerializer):
 class ArticleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Article
-        fields = ('id', 'title', 'body_text', 'status', 'user')
+        fields = ('id', 'title', 'body_text', 'status', 'users')
 
 
 class LikeSerializer(serializers.ModelSerializer):
