@@ -13,7 +13,7 @@ from blog.models import Article, Tags, Record
 # from blog.permissions import
 from blog.serializers import (ArticleListSerializer, ArticleSerializer,
                               LikeSerializer, UserLoginSerializer, UserSerializer,
-                              RecordListSerializer, TagListSerializer, TagSerializer)
+                              RecordListSerializer, TagListSerializer, TagSerializer, ArticleDetailSerializer)
 
 # Create your views here.
 
@@ -112,6 +112,7 @@ class ArticleListView(generics.ListCreateAPIView):
         else:
             return Article.objects.filter(status='PUBLIC')
 
+    # 建立序列化，创建或显示列表
     def get_serializer_class(self):
         if self.request.method == 'POST':
             # 创建的情况
@@ -129,8 +130,14 @@ class ArticleListView(generics.ListCreateAPIView):
 class ArticleView(generics.RetrieveUpdateDestroyAPIView):
     '''文章详情页视图'''
     queryset = Article.objects.all()
-    # 复用了文件列表中的序列化
-    serializer_class = ArticleSerializer
+    # article_queryset = Article.objects.all()
+    # record_queryset = Record.objects.all()
+    # 通过筛选，增加记录回退功能
+    # filter_backends = (DjangoFilterBackend, filters.SearchFilter)
+    # filter_fields = ('update_datetime',)
+    # 复用了文章列表中的序列化
+    # serializer_class = ArticleSerializer
+    serializer_class = ArticleDetailSerializer
     # 增加了文章所有者的权限判断
     permission_classes = (permissions.IsAuthenticated,)
     # permission_classes = (permissions.IsAuthenticated)
@@ -141,6 +148,10 @@ class ArticleView(generics.RetrieveUpdateDestroyAPIView):
             return Article.objects.filter(Q(status='PUBLIC') | Q(users=users))
         else:
             return Article.objects.filter(status='PUBLIC')
+
+    def perform_create(self, serializer):
+        # 创建前传入user
+        serializer.save()
 
 
 class RecordListView(generics.ListAPIView):

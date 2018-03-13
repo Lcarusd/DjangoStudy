@@ -1,28 +1,23 @@
 # -*- coding:utf-8 -*-
 
 from django.dispatch import Signal, receiver
-from django.db.models import signals
+# from django.db.models import signals
 from django.db.models.signals import m2m_changed, post_save, post_delete, pre_delete
 from blog.models import Article, Record
 
 
-@receiver(m2m_changed, sender=Article)
+@receiver(post_save, sender=Article)
 def article_edit(sender, instance, created, **kwargs):
-    '''接收器'''
-    print(sender, instance, kwargs)
-
+    '''接收信号'''
     '''若文章被修改则保存相关修改记录'''
     '''如何获取Article表数据并转存到Record表'''
-    instance = instance.objects.all()
-    instance.save()
-    return instance
+    print("------------------------------article_edit信号接收成功!----------------------------------")
 
 
-# 定义信号
-# articleSignal = Signal(providing_args=['test'])
+@receiver(m2m_changed, sender=Article.users.through)
+def article_user(sender, instance, created, **kwargs):
+    print("------------------------------article_user信号接收成功!----------------------------------")
 
-# 发送信号
-# signals.articleSignal.send(sender=None, allen='test')
 
 '''
 method 1：
