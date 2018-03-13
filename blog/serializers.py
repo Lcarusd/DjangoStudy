@@ -70,8 +70,8 @@ class ArticleSerializer(serializers.ModelSerializer):
         tags = validated_data.pop('tags')
         instance = super(ArticleSerializer, self).create(validated_data)
         for tag in tags:
-            Tag.objects.get_or_create()
-        instance.users.add(self.context['request'].user)
+            Tags.objects.get_or_create()
+        instance.users.add(self.context['request'].user)    # 获取编辑作者
         return instance
 
     class Meta:
@@ -124,3 +124,9 @@ class TagListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tags
         fields = ('id', 'name', 'count')
+
+
+class TagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tags
+        fields = ('id', 'name')

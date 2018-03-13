@@ -13,7 +13,7 @@ from blog.models import Article, Tags, Record
 # from blog.permissions import
 from blog.serializers import (ArticleListSerializer, ArticleSerializer,
                               LikeSerializer, UserLoginSerializer, UserSerializer,
-                              RecordListSerializer, TagListSerializer)
+                              RecordListSerializer, TagListSerializer, TagSerializer)
 
 # Create your views here.
 
@@ -159,17 +159,16 @@ class RecordListView(generics.ListAPIView):
         return super(RecordListView, self).get_serializer_class()
 
 
-class TagListView(generics.ListAPIView):
+class TagListView(generics.ListCreateAPIView):
     '''tag列表接口 用于展示标签信息及使用频次'''
     queryset = Tags.objects.all()
 
     # 展示tag信息
     def get_serializer_class(self):
-        if self.request.method == 'GET':
+        if self.request.method == 'POST':
+            # 创建tag
+            self.serializer_class = TagSerializer
+        else:
+            # 展示tag
             self.serializer_class = TagListSerializer
         return super(TagListView, self).get_serializer_class()
-
-
-class TagView(generics.RetrieveUpdateDestroyAPIView):
-    '''tag详情页接口 tag的查|删|改'''
-    pass

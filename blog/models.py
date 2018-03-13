@@ -5,12 +5,14 @@ from django.db import models
 
 from django.contrib.auth.models import User
 
+# from taggit.managers import TaggableManager
+
 # Create your models here.
 
 
 class Tags(models.Model):
     '''标签表'''
-    name = models.CharField(u'标签名', max_length=50)
+    name = models.CharField(u'标签名', max_length=50, blank=True)
     count = models.IntegerField(u'标签使用频次')
 
 
@@ -31,6 +33,7 @@ class Article(models.Model):
                               choices=STATUS_CHOICES, default='PUBLIC')
     tags = models.ManyToManyField(
         Tags, related_name='article',  verbose_name=u'标签')
+    # tags = TaggableManager()
 
     def __unicode__(self):
         return self.title
@@ -44,8 +47,8 @@ class Like(models.Model):
 
 class Record(models.Model):
     '''记录表'''
-    user = models.ForeignKey(User)  # 用户
-    article = models.ForeignKey(Article, verbose_name=u'关联文章表')
+    user = models.ForeignKey(User, verbose_name=u'编辑人')  # 用户
+    article = models.ForeignKey(Article, verbose_name=u'编辑文章')
     update_datetime = models.DateTimeField(
         auto_now=True, verbose_name=u'文章的编辑时间')
     before_title = models.CharField(u'编辑前标题', max_length=255)
