@@ -1,91 +1,32 @@
-
-表设计：
-
-记录表：
-编辑人
-文章
-时间
-编辑前标题
-编辑前内容
-tags = manytomany()
-
-表设计：
-文章：
-tags = manytomany(tag)
-users = manytomany(user)
-
-tag:
-name
-count 在文章的tags上监听m2m_changed信号，对count进行修改。注意数据库脏读问题。
-
-如果有作者编辑、则通过signals记录 包含编辑人、编辑文章、时间、编辑前标题、编辑前的文章、tags(有现成的库)
-signal文件，监听article表，若文章被编辑则提取相关数据进行保存 signal及taggit库的使用
-如何拿到具体字段数据：
-id  主键自增
-user    从当前登录用户中拿到
-article    编辑的是那篇文章，文章记录id
-update_datetime 执行入库操作，自动添加时间
-before_title    信号监听，若标题被修改则触发article_edit方法执行
-before_body_text    信号监听，若文章内容被修改则触发article_edit方法执行
-tags    暂不处理
-
-tips:
-在什么地方进行监听？以什么方式监听？
-
-list
-modelserializer
-
-
-需要监听的字段：
-username
-title
-update_datetime
-
 需求：
 0. 新增或者编辑文章的时候通过jieba分词拾取tags、需要在文章中记录tags
-1. 一篇上线文章可以由多个作者同时编辑 t
+1. 一篇上线文章可以由多个作者同时编辑
 2. 如果有作者编辑、则通过signals记录 包含编辑人、编辑文章、时间、编辑前和编辑后的文章、标题、tags(有现成的库)
-3. 记录的列表接口，可以对编辑人、编辑文章进行筛选 t
-4. 可通过记录回退到任意记录（update_datetime字段）t
+3. 记录的列表接口，可以对编辑人、编辑文章进行筛选 
+4. 可通过记录回退到任意记录（update_datetime字段）
 5. 任意两个记录的对比接口(一个文章) 
-6. tags列表接口 t
-7. 文章列表增加tags的显示、筛选
-8. tags频次接口 [{"name":"tag1","count":1},{"name":"tag2", "count":222}] t
+6. tags列表接口 
+7. 文章列表增加tags的显示、筛选、创建
+8. tags频次接口 [{"name":"tag1","count":1},{"name":"tag2", "count":222}] 
+
+表设计：
+记录表：编辑人文章、时间、编辑前标题、编辑前内容、tags = manytomany()
+文章：tags = manytomany(tag)、users = manytomany(user)
+tag:name、count 在文章的tags上监听m2m_changed信号，对count进行修改。注意数据库脏读问题。
 
 接口设计：
-1. article详情页中对于user、tag多对多关系的处理
-manytomany:
-Article and User
-Article and Tags
-创建文章：
-创建时，从user_id出发拿到username值（多对多的查询）
-权限控制:
-所有公开文章登录者都能看到，但只有当前用户才能修改
+1. article详情页中对于users多对多关系的处理
+Q：第二个作者编辑文件后，get请求无法访问详情页
 
-关于user字段的处理：
-不应该让用户选择用户，而应该获取当前登录用户，传入user
-Q:切换用户后，修改文章出现新建文章问题
+2、signal文件，监听article对象，若文章被编辑则提取相关数据进行保存
+Q：接收到article信息后，如何转存到record表中
 
-7、articles接口，创建文章时增加tag选择功能，并在文章列表增加tag显示
-    支持tag显示、选择功能  taggit库
-2、signal文件，监听article表，若文章被编辑则提取相关数据进行保存 signal及taggit库的使用
 3、一个records路由接口，用于展示修改记录与筛选字段(编辑人、编辑文章) t
-4、一个records路由接口，增加字段(update_datetime)筛选功能，用于记录回退
-5、article详情页命中一篇文章，根据文章搜索其修改记录并获取所有的修改时间记录，选中两条时间记录，用于对比
-6、8、一个tags路由接口，用于展示标签信息及使用频次， t
 
+4、article详情页接口，增加字段(update_datetime)筛选功能，用于记录回退
 
-知识清单：
+5、contrast接口，通过筛选文章与时间记录进行对比
 
-视图对于http请求的处理
-权限控制(运行权限检查)
-视图到序列化做了什么
-modelserializer序列化的使用
-Django的QuerySet
+6、8、一个tags路由接口，用于展示tag信息及使用频次
 
-
-request对象
-
-(<class 'blog.models.Article'>, <Article: 文章文章sende>, 
-{'update_fields': None, 'raw': False, 'signal': <django.db.models.signals.ModelSignal object at 0x10628d350>, 
-'using': 'default', 'created': False})
+7、articles路由接口，创建文章时增加tag选择功能，并在文章列表增加创建

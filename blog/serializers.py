@@ -87,10 +87,7 @@ class ArticleSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         '''文章更新'''
-        print("+++++++++++++++++++++++++", self.context['request'].user)
-        print("fdskjdfhkjfgbsjerdfbgjksdfbgeskjefgnerjksfds", self.request.user)
-        ArticleSignal.send(sender=Article, rr="test",
-                           user=self.context['request'].user)
+        ArticleSignal.send(sender=Article, rr="test",)
         instance.users.add(self.context['request'].user)
         instance.title = validated_data['title']
         instance.body_text = validated_data['body_text']
@@ -99,7 +96,6 @@ class ArticleSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Article
-        # fields = ('id', 'title', 'body_text', 'status', 'tags')
         fields = ('id', 'users', 'title', 'body_text', 'status', )
 
 
@@ -137,7 +133,6 @@ class RecordListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Record
         fields = ('id', 'user', 'article', 'update_datetime', 'before_title')
-        # fields = ('update_datetime', 'before_title')
 
 
 class RecordSerializer(serializers.ModelSerializer):

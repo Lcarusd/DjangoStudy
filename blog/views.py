@@ -130,17 +130,14 @@ class ArticleListView(generics.ListCreateAPIView):
 
 class ArticleView(generics.RetrieveUpdateDestroyAPIView):
     '''文章详情页视图'''
-    article_queryset = Article.objects.all()
-    record_queryset = Record.objects.all()
-
-    # 复用了文章列表中的序列化
+    queryset = Article.objects.all()
+    # 复用的ArticleList的序列化
     serializer_class = ArticleSerializer
-    # serializer_class = ArticleDetailSerializer
     # 增加了文章所有者的权限判断
     permission_classes = (permissions.IsAuthenticated,)
 
-    # 筛选基于当前用户的查询集，并做权限验证
     def get_queryset(self):
+        '''筛选基于当前用户的查询集，并做权限验证'''
         users = self.request.user
         if users and users.is_authenticated:
             return Article.objects.filter(Q(status='PUBLIC') | Q(users=users))
@@ -157,9 +154,9 @@ class RecordListView(generics.ListAPIView):
     记录列表接口 用于展示修改记录与筛选字段(编辑人、编辑文章)
     '''
     queryset = Record.objects.all()
-    # 筛选器，增加记录回退功能及对编辑人、编辑文章进行筛选
+    # 筛选器，增加对编辑人、编辑文章进行筛选
     filter_backends = (DjangoFilterBackend,)
-    filter_fields = ('user', 'article', 'update_datetime',)
+    filter_fields = ('user', 'article',)
 
     # 展示修改记录
     def get_serializer_class(self):

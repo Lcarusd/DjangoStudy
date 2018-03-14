@@ -14,8 +14,8 @@ from django.dispatch import Signal
 
 class Tags(models.Model):
     '''标签表'''
-    name = models.CharField(u'标签名', max_length=50, blank=True)
-    count = models.IntegerField(u'标签使用频次')
+    name = models.CharField(u'标签名', max_length=50,)
+    count = models.IntegerField(u'标签使用频次',)
 
 
 class Article(models.Model):
@@ -25,7 +25,6 @@ class Article(models.Model):
         ('HIDE', u'隐藏文章'),
     )
 
-    # users = models.ForeignKey(User, related_name='article', verbose_name=u'作者')
     users = models.ManyToManyField(
         User, related_name='article', verbose_name=u'作者')
     title = models.CharField(u'文章标题', max_length=255)
@@ -35,7 +34,6 @@ class Article(models.Model):
                               choices=STATUS_CHOICES, default='PUBLIC')
     tags = models.ManyToManyField(
         Tags, related_name='article',  verbose_name=u'标签')
-    # tags = TaggableManager()
 
     def __unicode__(self):
         return self.title
