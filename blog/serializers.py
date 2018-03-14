@@ -3,8 +3,11 @@ from django.contrib.auth import login
 from django.contrib.auth.models import User
 from django.db.models import F
 from rest_framework import serializers
-
 from blog.models import Article, Like, Record, Tags
+
+from django.dispatch import Signal
+# from blog.signal import *
+from blog.signal import ArticleSignal
 
 
 class UserLoginSerializer(serializers.Serializer):
@@ -61,7 +64,14 @@ class ArticleListSerializer(serializers.ModelSerializer):
 
 
 class ArticleSerializer(serializers.ModelSerializer):
-    '''文章创建序列化'''
+    '''文章创建更新序列化'''
+    users = serializers.SerializerMethodField()
+
+    def get_users(self, obj):
+        # 获取文章作者名称
+        return obj.users.all().values_list(
+            'username', flat=True)
+
     # tags = serializers.ListField(
     #     child=serializers.CharField()
     # )
@@ -75,24 +85,19 @@ class ArticleSerializer(serializers.ModelSerializer):
         instance.users.add(self.context['request'].user)  # 获取编辑作者
         return instance
 
-    class Meta:
-        model = Article
-        # fields = ('id', 'title', 'body_text', 'status', 'tags')
-        fields = ('id', 'title', 'body_text', 'status',)
-
-
-class ArticleDetailSerializer(serializers.ModelSerializer):
-    '''文章更新序列化'''
-
     def update(self, instance, validated_data):
-        # instance = super(ArticleDetailSerializer, self).create(validated_data)
-        instance = super(ArticleSerializer, self).create(validated_data)
-        instance.users.add(self.context['request'].user)  # 获取编辑作者
+        '''文章更新'''
+        ArticleSignal.send(sender=Article, rr="test")
+        instance.users.add(self.context['request'].user)
+        instance.title = validated_data['title']
+        instance.body_text = validated_data['body_text']
+        instance.save()
         return instance
 
     class Meta:
         model = Article
-        fields = ('id', 'title', 'body_text', 'status',)
+        # fields = ('id', 'title', 'body_text', 'status', 'tags')
+        fields = ('id', 'users', 'title', 'body_text', 'status', )
 
 
 class LikeSerializer(serializers.ModelSerializer):
@@ -109,6 +114,7 @@ class LikeSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(u'已经点过赞了')
         # 向data中追加了user以供create时使用
         data['user'] = self.context['request'].user
+        # print(data)
         return data
 
     def create(self, validated_data):

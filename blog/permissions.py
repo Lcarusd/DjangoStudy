@@ -2,13 +2,13 @@
 from rest_framework import permissions
 
 
-class IsArticleOwner(permissions.BasePermission):
+# class IsArticleOwner(permissions.BasePermission):
 
-    message = u'非文章所有者'
+#     message = u'非文章所有者'
 
-    def has_object_permission(self, request, view, obj):
-        # obj为Article对象
-        return obj.user == request.user
+#     def has_object_permission(self, request, view, obj):
+#         # obj为Article对象
+#         return obj.user == request.user
 
 
 class IsOwnerOrReadOnly(permissions.BasePermission):

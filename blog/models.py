@@ -7,6 +7,8 @@ from django.contrib.auth.models import User
 
 # from taggit.managers import TaggableManager
 
+from django.dispatch import Signal
+
 # Create your models here.
 
 
@@ -50,7 +52,7 @@ class Record(models.Model):
     user = models.ForeignKey(User, verbose_name=u'编辑人')  # 用户
     article = models.ForeignKey(Article, verbose_name=u'编辑文章')
     update_datetime = models.DateTimeField(
-        auto_now=True, verbose_name=u'文章的编辑时间')
+        auto_now=True, verbose_name=u'编辑时间')
     before_title = models.CharField(u'编辑前标题', max_length=255)
     before_body_text = models.TextField(u'编辑前内容')
     tags = models.ManyToManyField(Tags, verbose_name=u'关联tags表')

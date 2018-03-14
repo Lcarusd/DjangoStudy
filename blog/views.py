@@ -13,7 +13,7 @@ from blog.models import Article, Tags, Record
 # from blog.permissions import
 from blog.serializers import (ArticleListSerializer, ArticleSerializer,
                               LikeSerializer, UserLoginSerializer, UserSerializer,
-                              RecordListSerializer, TagListSerializer, TagSerializer, ArticleDetailSerializer)
+                              RecordListSerializer, TagListSerializer, TagSerializer,)
 
 # Create your views here.
 
@@ -96,6 +96,7 @@ class UserLikeView(generics.CreateAPIView):
 class ArticleListView(generics.ListCreateAPIView):
     '''文章列表视图'''
     queryset = Article.objects.all().order_by('-like_count')
+    # 对文章状态与用户进行筛选
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
     filter_fields = ('status', 'users')
     search_fields = ('title', 'user__username')
@@ -115,10 +116,10 @@ class ArticleListView(generics.ListCreateAPIView):
     # 建立序列化，创建或显示列表
     def get_serializer_class(self):
         if self.request.method == 'POST':
-            # 创建的情况
+            # 创建
             self.serializer_class = ArticleSerializer
         else:
-            # 列表的情况
+            # 显示
             self.serializer_class = ArticleListSerializer
         return super(ArticleListView, self).get_serializer_class()
 
@@ -129,19 +130,16 @@ class ArticleListView(generics.ListCreateAPIView):
 
 class ArticleView(generics.RetrieveUpdateDestroyAPIView):
     '''文章详情页视图'''
-    queryset = Article.objects.all()
-    # article_queryset = Article.objects.all()
-    # record_queryset = Record.objects.all()
-    # 通过筛选，增加记录回退功能
-    # filter_backends = (DjangoFilterBackend, filters.SearchFilter)
-    # filter_fields = ('update_datetime',)
+    article_queryset = Article.objects.all()
+    record_queryset = Record.objects.all()
+
     # 复用了文章列表中的序列化
-    # serializer_class = ArticleSerializer
-    serializer_class = ArticleDetailSerializer
+    serializer_class = ArticleSerializer
+    # serializer_class = ArticleDetailSerializer
     # 增加了文章所有者的权限判断
     permission_classes = (permissions.IsAuthenticated,)
-    # permission_classes = (permissions.IsAuthenticated)
 
+    # 筛选基于当前用户的查询集，并做权限验证
     def get_queryset(self):
         users = self.request.user
         if users and users.is_authenticated:
@@ -151,7 +149,7 @@ class ArticleView(generics.RetrieveUpdateDestroyAPIView):
 
     def perform_create(self, serializer):
         # 创建前传入user
-        serializer.save()
+        serializer.save(user=self.request.user)
 
 
 class RecordListView(generics.ListAPIView):
@@ -159,9 +157,9 @@ class RecordListView(generics.ListAPIView):
     记录列表接口 用于展示修改记录与筛选字段(编辑人、编辑文章)
     '''
     queryset = Record.objects.all()
-    # 筛选器
+    # 筛选器，增加记录回退功能及对编辑人、编辑文章进行筛选
     filter_backends = (DjangoFilterBackend,)
-    filter_fields = ('user', 'article')
+    filter_fields = ('user', 'article', 'update_datetime',)
 
     # 展示修改记录
     def get_serializer_class(self):
