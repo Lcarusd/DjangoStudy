@@ -86,3 +86,6 @@ Django的QuerySet
 
 request对象
 
+(<class 'blog.models.Article'>, <Article: 文章文章sende>, 
+{'update_fields': None, 'raw': False, 'signal': <django.db.models.signals.ModelSignal object at 0x10628d350>, 
+'using': 'default', 'created': False})

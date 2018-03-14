@@ -87,7 +87,10 @@ class ArticleSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         '''文章更新'''
-        ArticleSignal.send(sender=Article, rr="test")
+        print("+++++++++++++++++++++++++", self.context['request'].user)
+        print("fdskjdfhkjfgbsjerdfbgjksdfbgeskjefgnerjksfds", self.request.user)
+        ArticleSignal.send(sender=Article, rr="test",
+                           user=self.context['request'].user)
         instance.users.add(self.context['request'].user)
         instance.title = validated_data['title']
         instance.body_text = validated_data['body_text']
