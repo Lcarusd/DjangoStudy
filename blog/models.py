@@ -15,7 +15,7 @@ from django.dispatch import Signal
 class Tags(models.Model):
     '''标签表'''
     name = models.CharField(u'标签名', max_length=50,)
-    count = models.IntegerField(u'标签使用频次',)
+    count = models.IntegerField(u'标签使用频次', blank=False)
 
 
 class Article(models.Model):
