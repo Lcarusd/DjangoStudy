@@ -10,10 +10,12 @@ from rest_framework.response import Response
 from rest_framework.reverse import reverse
 
 from blog.models import Article, Tags, Record
-# from blog.permissions import
 from blog.serializers import (ArticleListSerializer, ArticleSerializer,
                               LikeSerializer, UserLoginSerializer, UserSerializer,
-                              RecordListSerializer, TagListSerializer, TagSerializer,)
+                              RecordListSerializer, TagListSerializer)
+
+import itertools
+from collections import Counter
 
 # Create your views here.
 
@@ -35,7 +37,7 @@ class CommonPagination(pagination.PageNumberPagination):
     '''分页器'''
     max_page_size = 500
     page_size_query_param = 'size'
-    page_size = 10
+    page_size = 5
 
 
 class UserLoginView(generics.GenericAPIView):
@@ -98,7 +100,7 @@ class ArticleListView(generics.ListCreateAPIView):
     queryset = Article.objects.all().order_by('-like_count')
     # 对文章状态与用户进行筛选
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
-    filter_fields = ('status', 'users')
+    filter_fields = ('status', 'users',)
     search_fields = ('title', 'user__username')
     # IsAuthenticated 登陆用户可使用此视图
     permission_classes = (permissions.IsAuthenticated, )
@@ -131,6 +133,21 @@ class ArticleListView(generics.ListCreateAPIView):
 class ArticleView(generics.RetrieveUpdateDestroyAPIView):
     '''文章详情页视图'''
     queryset = Article.objects.all()
+    # 遍历并提取所有文章的tag
+    lists = [i.tag.names() for i in queryset]
+    # 将二维tag列表转为一维
+    tags_list = list(itertools.chain.from_iterable(lists))
+    # Counter([1, 2, 2, 2, 2, 3, 3, 3, 4, 4, 4, 4])
+    # Counter({1: 5, 2: 3, 3: 2})
+    # 对tag去重、统计、入库
+    for t in tags_list:
+        tag = Tags.objects.filter(name__exact=t).first()
+        if tag:
+            tag.count = tag.count + 1
+        else:
+            tag = Tags(name=t, count=1)
+        tag.save()
+
     # 复用的ArticleList的序列化
     serializer_class = ArticleSerializer
     # 增加了文章所有者的权限判断
@@ -140,7 +157,7 @@ class ArticleView(generics.RetrieveUpdateDestroyAPIView):
         '''筛选基于当前用户的查询集，并做权限验证'''
         users = self.request.user
         if users and users.is_authenticated:
-            return Article.objects.filter(Q(status='PUBLIC') | Q(users=users))
+            return Article.objects.filter(Q(status='PUBLIC') | Q(users=users)).distinct()
         else:
             return Article.objects.filter(status='PUBLIC')
 
@@ -157,6 +174,8 @@ class RecordListView(generics.ListAPIView):
     # 筛选器，增加对编辑人、编辑文章进行筛选
     filter_backends = (DjangoFilterBackend,)
     filter_fields = ('user', 'article',)
+    # 分页
+    pagination_class = CommonPagination
 
     # 展示修改记录
     def get_serializer_class(self):
@@ -168,13 +187,9 @@ class RecordListView(generics.ListAPIView):
 class TagListView(generics.ListCreateAPIView):
     '''tag列表接口 用于展示标签信息及使用频次'''
     queryset = Tags.objects.all()
+    pagination_class = CommonPagination
 
     # 展示tag信息
     def get_serializer_class(self):
-        if self.request.method == 'POST':
-            # 创建tag
-            self.serializer_class = TagSerializer
-        else:
-            # 展示tag
-            self.serializer_class = TagListSerializer
+        self.serializer_class = TagListSerializer
         return super(TagListView, self).get_serializer_class()

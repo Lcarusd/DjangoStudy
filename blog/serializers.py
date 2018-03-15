@@ -3,11 +3,14 @@ from django.contrib.auth import login
 from django.contrib.auth.models import User
 from django.db.models import F
 from rest_framework import serializers
-from blog.models import Article, Like, Record, Tags
+from blog.models import Article, Like, Record, Tags, User
 
 from django.dispatch import Signal
 # from blog.signal import *
 from blog.signal import ArticleSignal
+
+import jieba
+import jieba.analyse
 
 
 class UserLoginSerializer(serializers.Serializer):
@@ -46,6 +49,13 @@ class ArticleListSerializer(serializers.ModelSerializer):
     '''文章列表序列化'''
     like_users = serializers.SerializerMethodField()
     users = serializers.SerializerMethodField()
+    tags = serializers.SerializerMethodField()
+
+    def get_tags(self, obj):
+        tags = obj.tag.names()
+        # tags = [{"name": tag} for tag in tags]
+        tags = [tag for tag in tags]
+        return tags
 
     def get_like_users(self, obj):
         # obj为一个Article实例
@@ -60,7 +70,7 @@ class ArticleListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Article
-        fields = ('id', 'title', 'users', 'like_count', 'like_users')
+        fields = ('id', 'title', 'users', 'like_count', 'like_users', 'tags')
 
 
 class ArticleSerializer(serializers.ModelSerializer):
@@ -87,10 +97,18 @@ class ArticleSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         '''文章更新'''
-        ArticleSignal.send(sender=Article, rr="test",)
-        instance.users.add(self.context['request'].user)
+        body_text = validated_data.get('body_text', instance.body_text)
+        tags = jieba.analyse.extract_tags(body_text, topK=3)
+        for t in tags:
+            instance.tags.add(t)
+
         instance.title = validated_data['title']
         instance.body_text = validated_data['body_text']
+        instance.users.add(self.context['request'].user, )
+        ArticleSignal.send(
+            sender=Article, user=self.context['request'].user,
+            article=instance, before_title=validated_data['title'],
+            before_body_text=validated_data['body_text'])
         instance.save()
         return instance
 
@@ -100,6 +118,7 @@ class ArticleSerializer(serializers.ModelSerializer):
 
 
 class LikeSerializer(serializers.ModelSerializer):
+
     '''用户点赞序列化'''
     # 只有公开的文章可以点赞
 
@@ -135,18 +154,8 @@ class RecordListSerializer(serializers.ModelSerializer):
         fields = ('id', 'user', 'article', 'update_datetime', 'before_title')
 
 
-class RecordSerializer(serializers.ModelSerializer):
-    '''记录详情序列化'''
-
-
 class TagListSerializer(serializers.ModelSerializer):
     '''tag列表信息序列化'''
     class Meta:
         model = Tags
         fields = ('id', 'name', 'count')
-
-
-class TagSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Tags
-        fields = ('id', 'name')

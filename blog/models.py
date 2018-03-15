@@ -5,7 +5,7 @@ from django.db import models
 
 from django.contrib.auth.models import User
 
-# from taggit.managers import TaggableManager
+from taggit.managers import TaggableManager
 
 from django.dispatch import Signal
 
@@ -15,7 +15,7 @@ from django.dispatch import Signal
 class Tags(models.Model):
     '''标签表'''
     name = models.CharField(u'标签名', max_length=50,)
-    count = models.IntegerField(u'标签使用频次', blank=False)
+    count = models.IntegerField(u'标签使用频次', default=0)
 
 
 class Article(models.Model):
@@ -32,8 +32,8 @@ class Article(models.Model):
     like_count = models.IntegerField(u'文章被点赞的次数', default=0)
     status = models.CharField(u'文章状态', max_length=10,
                               choices=STATUS_CHOICES, default='PUBLIC')
-    tags = models.ManyToManyField(
-        Tags, related_name='article',  verbose_name=u'标签')
+    # tags = models.ForeignKey(Tags,)
+    tag = TaggableManager()
 
     def __unicode__(self):
         return self.title
