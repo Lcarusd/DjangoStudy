@@ -23,5 +23,7 @@ tag:name、count 在文章的tags上监听m2m_changed信号，对count进行修�
 6、8、一个tags路由接口，用于展示tag信息及使用频次 t
 7、articles路由接口，创建文章时增加tag选择功能，并在文章列表增加创建
 
-tags = [tag for tag in tags]
-一个tag入库判断其是否存在，若存在则查询到相同值得tacount加1，若不存在则存入数据库并count加1
+知识清单：
+F、Q对象
+context渲染器
+ORM、QuerySet

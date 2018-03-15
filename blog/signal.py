@@ -1,6 +1,5 @@
 # -*- coding:utf-8 -*-
 from django.dispatch import Signal, receiver
-from django.db.models.signals import m2m_changed, post_save, post_delete, pre_delete
 from blog.models import Article, Record, Tags
 
 # 定义信号

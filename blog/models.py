@@ -32,7 +32,6 @@ class Article(models.Model):
     like_count = models.IntegerField(u'文章被点赞的次数', default=0)
     status = models.CharField(u'文章状态', max_length=10,
                               choices=STATUS_CHOICES, default='PUBLIC')
-    # tags = models.ForeignKey(Tags,)
     tag = TaggableManager()
 
     def __unicode__(self):
@@ -41,13 +40,13 @@ class Article(models.Model):
 
 class Like(models.Model):
     '''点赞表'''
-    user = models.ForeignKey(User)  # 用户
-    article = models.ForeignKey(Article)    # 文章
+    user = models.ForeignKey(User)
+    article = models.ForeignKey(Article)
 
 
 class Record(models.Model):
     '''记录表'''
-    user = models.ForeignKey(User, verbose_name=u'编辑人')  # 用户
+    user = models.ForeignKey(User, verbose_name=u'编辑人')
     article = models.ForeignKey(Article, verbose_name=u'编辑文章')
     update_datetime = models.DateTimeField(
         auto_now=True, verbose_name=u'编辑时间')

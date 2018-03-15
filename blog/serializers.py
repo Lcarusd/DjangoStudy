@@ -6,7 +6,6 @@ from rest_framework import serializers
 from blog.models import Article, Like, Record, Tags, User
 
 from django.dispatch import Signal
-# from blog.signal import *
 from blog.signal import ArticleSignal
 
 import jieba
@@ -82,16 +81,9 @@ class ArticleSerializer(serializers.ModelSerializer):
         return obj.users.all().values_list(
             'username', flat=True)
 
-    # tags = serializers.ListField(
-    #     child=serializers.CharField()
-    # )
-
     def create(self, validated_data):
         '''文章创建'''
-        # tags = validated_data.pop('tags')
         instance = super(ArticleSerializer, self).create(validated_data)
-        # for tag in tags:
-        #     Tags.objects.get_or_create()
         instance.users.add(self.context['request'].user)  # 获取编辑作者
         return instance
 
