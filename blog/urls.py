@@ -3,7 +3,7 @@ from django.conf.urls import url
 
 from blog.views import (ArticleListView, ArticleView, UserDetail, UserLikeView,
                         UserListView, UserLoginView, UserLogoutView, api_root,
-                        RecordListView, TagListView,)
+                        RecordListView, TagListView, BackView, DiffView)
 
 urlpatterns = [
     url(r'^$', api_root),
@@ -16,4 +16,6 @@ urlpatterns = [
     url(r'^likes/$', UserLikeView.as_view(), name=u'点赞创建'),
     url(r'^records/$', RecordListView.as_view(), name=u'记录列表'),
     url(r'^tags/$', TagListView.as_view(), name=u'标签创建'),
+    url(r'^back/(?P<pk>[0-9]+)/$', BackView.as_view(), name=u'记录回退'),
+    url(r'^diff/$', DiffView.as_view(), name=u'记录回退'),
 ]

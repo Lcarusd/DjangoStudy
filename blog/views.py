@@ -12,12 +12,11 @@ from rest_framework.reverse import reverse
 from blog.models import Article, Tags, Record
 from blog.serializers import (ArticleListSerializer, ArticleSerializer,
                               LikeSerializer, UserLoginSerializer, UserSerializer,
-                              RecordListSerializer, TagListSerializer)
-
-import itertools
-from collections import Counter
+                              RecordListSerializer, TagListSerializer, DiffSerializer)
 
 # Create your views here.
+
+# from django_filters import ModelMultipleChoiceFilter
 
 
 @api_view(['GET'])
@@ -30,6 +29,7 @@ def api_root(request, format=None):
         'likes': reverse('点赞创建', request=request, format=format),
         'records': reverse('记录列表', request=request, format=format),
         'tags': reverse('标签创建', request=request, format=format),
+        'back': reverse('记录回退', request=request, format=format)
     })
 
 
@@ -102,6 +102,10 @@ class ArticleListView(generics.ListCreateAPIView):
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
     filter_fields = ('status', 'users',)
     search_fields = ('title', 'user__username')
+    # tags = django_filters.ModelMultipleChoiceFilter(
+    #     queryset=Tags.objects.filter(),
+    #     name='tags__name',
+    #     to_field_name='name')
     # IsAuthenticated 登陆用户可使用此视图
     permission_classes = (permissions.IsAuthenticated, )
     # 分页
@@ -133,21 +137,6 @@ class ArticleListView(generics.ListCreateAPIView):
 class ArticleView(generics.RetrieveUpdateDestroyAPIView):
     '''文章详情页视图'''
     queryset = Article.objects.all()
-    # 遍历并提取所有文章的tag
-    lists = [i.tag.names() for i in queryset]
-    # 将二维tag列表转为一维
-    tags_list = list(itertools.chain.from_iterable(lists))
-    # Counter([1, 2, 2, 2, 2, 3, 3, 3, 4, 4, 4, 4])
-    # Counter({1: 5, 2: 3, 3: 2})
-    # 对tag去重、统计、入库
-    for t in tags_list:
-        tag = Tags.objects.filter(name__exact=t).first()
-        if tag:
-            tag.count = tag.count + 1
-        else:
-            tag = Tags(name=t, count=1)
-        tag.save()
-
     # 复用的ArticleList的序列化
     serializer_class = ArticleSerializer
     # 增加了文章所有者的权限判断
@@ -193,3 +182,27 @@ class TagListView(generics.ListCreateAPIView):
     def get_serializer_class(self):
         self.serializer_class = TagListSerializer
         return super(TagListView, self).get_serializer_class()
+
+
+class BackView(generics.GenericAPIView):
+    '''记录回退'''
+    queryset = Record.objects.all()
+    permission_classes = (permissions.IsAuthenticated, )
+
+    def get(self, request, *args, **kwargs):
+        obj = self.get_object()
+        article = obj.article
+        article.title = obj.before_title
+        article.body_text = obj.before_body_text
+        article.save()
+        return Response(ArticleSerializer(article).data)
+
+
+class DiffView(generics.GenericAPIView):
+    '''diff'''
+    serializer_class = DiffSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        return Response(serializer.diff())

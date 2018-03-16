@@ -10,6 +10,8 @@ from blog.signal import ArticleSignal
 
 import jieba
 import jieba.analyse
+import itertools
+from collections import Counter
 
 
 class UserLoginSerializer(serializers.Serializer):
@@ -92,7 +94,22 @@ class ArticleSerializer(serializers.ModelSerializer):
         body_text = validated_data.get('body_text', instance.body_text)
         tags = jieba.analyse.extract_tags(body_text, topK=3)
         for t in tags:
-            instance.tags.add(t)
+            instance.tag.add(t)
+        queryset = Article.objects.all()
+        # 遍历并提取所有文章的tag
+        lists = [i.tag.names() for i in queryset]
+        # 将二维tag列表转为一维
+        tags_list = list(itertools.chain.from_iterable(lists))
+        # Counter([1, 2, 2, 2, 2, 3, 3, 3, 4, 4, 4, 4])
+        # Counter({1: 5, 2: 3, 3: 2})
+        # 对tag去重、统计、入库
+        for t in tags_list:
+            tag = Tags.objects.filter(name__exact=t).first()
+            if tag:
+                tag.count = tag.count + 1
+            else:
+                tag = Tags(name=t, count=1)
+            tag.save()
 
         instance.title = validated_data['title']
         instance.body_text = validated_data['body_text']
@@ -110,9 +127,7 @@ class ArticleSerializer(serializers.ModelSerializer):
 
 
 class LikeSerializer(serializers.ModelSerializer):
-
-    '''用户点赞序列化'''
-    # 只有公开的文章可以点赞
+    '''用户点赞'''
 
     def validate(self, data):
 
@@ -124,7 +139,6 @@ class LikeSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(u'已经点过赞了')
         # 向data中追加了user以供create时使用
         data['user'] = self.context['request'].user
-        # print(data)
         return data
 
     def create(self, validated_data):
@@ -143,7 +157,8 @@ class RecordListSerializer(serializers.ModelSerializer):
     '''记录列表序列化'''
     class Meta:
         model = Record
-        fields = ('id', 'user', 'article', 'update_datetime', 'before_title')
+        fields = ('id', 'user', 'article', 'update_datetime',
+                  'before_title', 'before_body_text')
 
 
 class TagListSerializer(serializers.ModelSerializer):
@@ -151,3 +166,25 @@ class TagListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tags
         fields = ('id', 'name', 'count')
+
+
+class DiffSerializer(serializers.Serializer):
+    record1 = serializers.ChoiceField(choices=Record.objects.all())
+    record2 = serializers.ChoiceField(
+        choices=Record.objects.all(), allow_null=True)
+
+    def diff(self):
+        data = self.validated_data
+        record1 = data['record1']
+        record2 = data['record2']
+        if record2:
+            if record1.before_title != record2.before_title:
+                return False
+            if record1.before_body_text != record2.before_body_text:
+                return False
+        else:
+            if record1.before_title != record1.article.title:
+                return False
+            if record1.before_body_text != record1.article.body_text:
+                return False
+        return True
