@@ -197,7 +197,7 @@ class BackView(generics.GenericAPIView):
 
 
 class DiffView(generics.GenericAPIView):
-    '''diff'''
+    '''记录对比接口'''
     serializer_class = DiffSerializer
 
     def post(self, request, *args, **kwargs):

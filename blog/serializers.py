@@ -54,18 +54,15 @@ class ArticleListSerializer(serializers.ModelSerializer):
 
     def get_tags(self, obj):
         tags = obj.tag.names()
-        # tags = [{"name": tag} for tag in tags]
         tags = [tag for tag in tags]
         return tags
 
     def get_like_users(self, obj):
-        # obj为一个Article实例
         data = list(Like.objects.filter(article=obj).order_by(
             '-id').values_list('user__username', flat=True))
         return data
 
     def get_users(self, obj):
-        # 获取文章作者名称
         return obj.users.all().values_list(
             'username', flat=True)
 
@@ -79,30 +76,23 @@ class ArticleSerializer(serializers.ModelSerializer):
     users = serializers.SerializerMethodField()
 
     def get_users(self, obj):
-        # 获取文章作者名称
         return obj.users.all().values_list(
             'username', flat=True)
 
     def create(self, validated_data):
-        '''文章创建'''
         instance = super(ArticleSerializer, self).create(validated_data)
         instance.users.add(self.context['request'].user)  # 获取编辑作者
         return instance
 
     def update(self, instance, validated_data):
-        '''文章更新'''
         body_text = validated_data.get('body_text', instance.body_text)
         tags = jieba.analyse.extract_tags(body_text, topK=3)
         for t in tags:
             instance.tag.add(t)
+
         queryset = Article.objects.all()
-        # 遍历并提取所有文章的tag
         lists = [i.tag.names() for i in queryset]
-        # 将二维tag列表转为一维
         tags_list = list(itertools.chain.from_iterable(lists))
-        # Counter([1, 2, 2, 2, 2, 3, 3, 3, 4, 4, 4, 4])
-        # Counter({1: 5, 2: 3, 3: 2})
-        # 对tag去重、统计、入库
         for t in tags_list:
             tag = Tags.objects.filter(name__exact=t).first()
             if tag:
@@ -154,7 +144,6 @@ class LikeSerializer(serializers.ModelSerializer):
 
 
 class RecordListSerializer(serializers.ModelSerializer):
-    '''记录列表序列化'''
     class Meta:
         model = Record
         fields = ('id', 'user', 'article', 'update_datetime',
@@ -162,7 +151,6 @@ class RecordListSerializer(serializers.ModelSerializer):
 
 
 class TagListSerializer(serializers.ModelSerializer):
-    '''tag列表信息序列化'''
     class Meta:
         model = Tags
         fields = ('id', 'name', 'count')

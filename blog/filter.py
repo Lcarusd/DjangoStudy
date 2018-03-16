@@ -11,8 +11,7 @@ class ArticleFilter(django_filters.rest_framework.FilterSet):
         name="tag__name",
         queryset=Tag.objects.filter(),
         to_field_name='name',
-        # lookup_expr='in',
-        label=u'标签分类'
+        label=u'标签'
     )
 
     class Meta:

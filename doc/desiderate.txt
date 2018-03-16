@@ -1,13 +1,13 @@
 需求：
-0. 新增或者编辑文章的时候通过jieba分词拾取tags、需要在文章中记录tags t
-1. 一篇上线文章可以由多个作者同时编辑 t
-2. 如果有作者编辑、则通过signals记录 包含编辑人、编辑文章、时间、编辑前和编辑后的文章、标题、tags(有现成的库) t
-3. 记录的列表接口，可以对编辑人、编辑文章进行筛选 t
+0. 新增或者编辑文章的时候通过jieba分词拾取tags、需要在文章中记录tags
+1. 一篇上线文章可以由多个作者同时编辑
+2. 如果有作者编辑、则通过signals记录 包含编辑人、编辑文章、时间、编辑前和编辑后的文章、标题、tags(有现成的库)
+3. 记录的列表接口，可以对编辑人、编辑文章进行筛选
 4. 可通过记录回退到任意记录（update_datetime字段）
 5. 任意两个记录的对比接口(一个文章) 
-6. tags列表接口 t
-7. 文章列表增加tags的显示、筛选 t
-8. tags频次接口 [{"name":"tag1","count":1},{"name":"tag2", "count":222}] t
+6. tags列表接口
+7. 文章列表增加tags的显示、筛选
+8. tags频次接口 [{"name":"tag1","count":1},{"name":"tag2", "count":222}]
 
 表设计：
 记录表：编辑人文章、时间、编辑前标题、编辑前内容、tags = manytomany()
@@ -15,27 +15,15 @@
 tag:name、count 在文章的tags上监听m2m_changed信号，对count进行修改。注意数据库脏读问题。
 
 接口设计：
-1. article详情页中对于users多对多关系的处理 t
-2、signal文件，监听article对象，若文章被编辑则提取相关数据进行保存 t
-3、一个records路由接口，用于展示修改记录与筛选字段(编辑人、编辑文章)  t
+1. article详情页中对于users多对多关系的处理 
+2、signal文件，监听article对象，若文章被编辑则提取相关数据进行保存
+3、一个records路由接口，用于展示修改记录与筛选字段(编辑人、编辑文章) 
 4、article详情页接口，增加字段(update_datetime)筛选功能，用于记录回退
 5、contrast接口，通过筛选文章与时间记录进行对比
-6、8、一个tags路由接口，用于展示tag信息及使用频次 t
+6、8、一个tags路由接口，用于展示tag信息及使用频次
 7、articles路由接口，创建文章时增加tag选择功能
-只能显示，无法筛选
 
 知识清单：
 F、Q对象
 context渲染器
 ORM、QuerySet
-
-可通过记录回退到任意记录（update_datetime字段
-1、覆盖数据库最新数据
-2、基于文章
-
-tags = django_filters.ModelMultipleChoiceFilter(
-    name='questions__tags__name',
-    queryset=Tag.objects.filter(otype='train', otype_plus='skill'),
-    to_field_name='name',
-    lookup_expr='in',
-    label=u'考核题目技能方向分类')
