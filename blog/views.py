@@ -14,6 +14,7 @@ from blog.serializers import (ArticleListSerializer, ArticleSerializer,
                               LikeSerializer, UserLoginSerializer, UserSerializer,
                               RecordListSerializer, TagListSerializer, DiffSerializer)
 
+from blog.filter import ArticleFilter
 # Create your views here.
 
 # from django_filters import ModelMultipleChoiceFilter
@@ -102,10 +103,7 @@ class ArticleListView(generics.ListCreateAPIView):
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
     filter_fields = ('status', 'users',)
     search_fields = ('title', 'user__username')
-    # tags = django_filters.ModelMultipleChoiceFilter(
-    #     queryset=Tags.objects.filter(),
-    #     name='tags__name',
-    #     to_field_name='name')
+    filter_class = ArticleFilter
     # IsAuthenticated 登陆用户可使用此视图
     permission_classes = (permissions.IsAuthenticated, )
     # 分页
