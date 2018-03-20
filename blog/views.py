@@ -99,12 +99,12 @@ class UserLikeView(generics.CreateAPIView):
 class ArticleListView(generics.ListCreateAPIView):
     '''文章列表视图'''
     queryset = Article.objects.all().order_by('-like_count')
-    # 对文章状态与用户进行筛选
+    # 对文章状态、用户、标签进行筛选
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
     filter_fields = ('status', 'users',)
     search_fields = ('title', 'user__username')
     filter_class = ArticleFilter
-    # IsAuthenticated 登陆用户可使用此视图
+    # 登陆用户可使用此视图
     permission_classes = (permissions.IsAuthenticated, )
     # 分页
     pagination_class = CommonPagination
@@ -175,6 +175,7 @@ class TagListView(generics.ListCreateAPIView):
     '''tag列表接口 用于展示标签信息及使用频次'''
     queryset = Tags.objects.all()
     pagination_class = CommonPagination
+    permission_classes = (permissions.IsAuthenticated, )
 
     # 展示tag信息
     def get_serializer_class(self):

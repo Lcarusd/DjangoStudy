@@ -13,7 +13,7 @@ from rest_framework import permissions
 
 class IsOwnerOrReadOnly(permissions.BasePermission):
     """
-    Custom permission to only allow owners of an object to edit it.
+    自定义权限仅允许对象的所有者对其进行编辑
     """
     message = '需登录才能继续操作'
 
