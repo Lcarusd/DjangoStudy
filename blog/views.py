@@ -163,6 +163,8 @@ class RecordListView(generics.ListAPIView):
     filter_fields = ('user', 'article',)
     # 分页
     pagination_class = CommonPagination
+    # 增加了文章所有者的权限判断
+    permission_classes = (permissions.IsAuthenticated,)
 
     # 展示修改记录
     def get_serializer_class(self):
@@ -200,6 +202,7 @@ class BackView(generics.GenericAPIView):
 class DiffView(generics.GenericAPIView):
     '''记录对比接口'''
     serializer_class = DiffSerializer
+    permission_classes = (permissions.IsAuthenticated, )
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
