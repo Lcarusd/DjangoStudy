@@ -123,7 +123,6 @@ class LikeSerializer(serializers.ModelSerializer):
 
         like = Like.objects.filter(
             article=data['article'], user=self.context['request'].user).first()
-        print(like)
         if data['article'].status == u'HIDE':
             raise serializers.ValidationError(u'文章未找到')
         elif like:
