@@ -157,14 +157,15 @@ class TagListSerializer(serializers.ModelSerializer):
 
 
 class DiffSerializer(serializers.Serializer):
-    record1 = serializers.ChoiceField(choices=Record.objects.all())
-    record2 = serializers.ChoiceField(
-        choices=Record.objects.all(), allow_null=True)
+    record1 = serializers.PrimaryKeyRelatedField(queryset=Record.objects.all())
+    record2 = serializers.PrimaryKeyRelatedField(
+        queryset=Record.objects.all(), allow_null=True)
 
     def diff(self):
         data = self.validated_data
         record1 = data['record1']
         record2 = data['record2']
+
         if record2:
             if record1.before_title != record2.before_title:
                 return False
