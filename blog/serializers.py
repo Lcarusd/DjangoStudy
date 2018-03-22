@@ -82,6 +82,12 @@ class ArticleSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         instance = super(ArticleSerializer, self).create(validated_data)
         instance.users.add(self.context['request'].user)  # 获取编辑作者
+
+        ArticleSignal.send(
+            sender=Article, user=self.context['request'].user,
+            article=instance, before_title=validated_data['title'],
+            before_body_text=validated_data['body_text'])
+
         return instance
 
     def update(self, instance, validated_data):
