@@ -21,6 +21,7 @@ from django.conf.urls import include
 # from rest_framework import urls
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^', include('blog.urls')),
     url(r'^api-auth/', include('rest_framework.urls')),
+    url(r'^school/', include('school.urls')),
+    url(r'^blog/', include('blog.urls')),
 ]
