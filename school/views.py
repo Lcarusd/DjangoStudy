@@ -5,6 +5,7 @@ from rest_framework import serializers
 
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework.request import Request
 from rest_framework.reverse import reverse
 
 from rest_framework import filters, generics, permissions, pagination
@@ -12,7 +13,7 @@ from rest_framework import filters, generics, permissions, pagination
 from school.models import Student, Teacher, Team, Plan, Task, Problem
 
 from school.serializer import (StudentSerializer, TeacherSerializer, TeamSerializer,
-                               PlanSerializer, TaskSerializer, ProblemSerializer)
+                               PlanSerializer, TaskSerializer, ProblemSerializer,)
 
 
 # Create your views here.
@@ -33,11 +34,6 @@ class StudentView(generics.ListCreateAPIView):
     '''学生视图'''
     queryset = Student.objects.all()
     serializer_class = StudentSerializer
-
-    # def post(self, request, *args, **kwargs):
-    #     serializer = self.get_serializer(data=request.data)
-    #     serializer.is_valid(raise_exception=True)
-    #     return Response()
 
 
 class TeacherView(generics.ListCreateAPIView):

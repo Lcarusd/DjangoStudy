@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
 from school.models import Student, Teacher, Team, Plan, Task, Problem
 from rest_framework import serializers
+import requests
 
 
 class StudentSerializer(serializers.ModelSerializer):
 
     def create(self, data):
         instance = super(StudentSerializer, self).create(data)
-        # team = Team.objects.filter(name="seclover").first()
-        # instance.team = team
         instance.save()
         return instance
 
@@ -21,10 +20,6 @@ class TeacherSerializer(serializers.ModelSerializer):
 
     def create(self, data):
         instance = super(TeacherSerializer, self).create(data)
-        # 若采用create方法创建对象，会将create和save同时进行
-        # team = Team.objects.create(name="seclover")
-        # team = Team.objects.filter(name="seclover").first()
-        # instance.team.add(team)
         instance.save()
         return instance
 
@@ -37,8 +32,6 @@ class TeamSerializer(serializers.ModelSerializer):
 
     def create(self, data):
         instance = super(TeamSerializer, self).create(data)
-        # plan = Plan.objects.filter(name="CodingPlan").first()
-        # instance.plan.add(plan)
         instance.save()
         return instance
 
@@ -51,8 +44,6 @@ class PlanSerializer(serializers.ModelSerializer):
 
     def create(self, data):
         instance = super(PlanSerializer, self).create(data)
-        # task = Task.objects.filter(name="Djnagogogo").get()
-        # instance.task.add(task)
         instance.save()
         return instance
 
@@ -62,11 +53,6 @@ class PlanSerializer(serializers.ModelSerializer):
 
 
 class TaskSerializer(serializers.ModelSerializer):
-    # problem = serializers.SerializerMethodField()
-
-    # def get_problem(self, obj):
-    #     return obj.problem.all().values_list(
-    #         'problem', flat=True)
 
     def create(self, data):
         instance = super(TaskSerializer, self).create(data)
