@@ -86,17 +86,16 @@ class Teacher(models.Model):
 
 class Check(models.Model):
     STATUS_CHOICES = (
-        ('IDLE', u'闲置'),
-        ('WAIT', u'等待'),
-        ('ACCEPT', u'通过'),
-        ('REFUSE', u'拒绝'),
+        (WAIT, u'等待'),
+        (ACCEPT, u'通过'),
+        (REFUSE, u'拒绝'),
     )
 
     name = models.CharField(u'审核名称', max_length=255)
     student = models.ForeignKey(Student)
     teacher = models.ForeignKey(Teacher)
     status = models.CharField(u'审核状态', max_length=10,
-                              choices=STATUS_CHOICES, default='IDLE')
+                              choices=STATUS_CHOICES, default=WAIT)
 
     # Task.objects.filter(Plan__Team__Teacher__pk=1)
     # related_name设置问题
