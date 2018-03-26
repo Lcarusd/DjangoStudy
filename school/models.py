@@ -11,33 +11,6 @@ from django.contrib.contenttypes.fields import GenericRelation
 class Problem(models.Model):
     openstack = models.CharField(u'问题描述', max_length=255)
 
-    tasks = GenericRelation(Task)
-
-
-class Problem1(models.Model):
-    name = models.CharField(u'问题名称', max_length=255)
-    desc = models.CharField(u'问题描述', max_length=255)
-
-    tasks = GenericRelation(Task)
-
-
-class Task(models.Model):
-    desc = models.CharField(u'任务名称', max_length=255)
-    problem = models.ManyToManyField(Problem, related_name='Task')
-
-    plans = GenericRelation(Plan)
-
-    content_type = models.ForeignKey(ContentType)
-    object_id = models.PositiveIntegerField()
-    content_object = GenericForeignKey()
-
-
-class Task1(models.Model):
-    name = models.CharField(u'任务名称', max_length=255)
-    problem = models.ManyToManyField(Problem, related_name='Task')
-
-    plans = GenericRelation(Plan)
-
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')
@@ -45,10 +18,13 @@ class Task1(models.Model):
 
 class Task2(models.Model):
     name = models.CharField(u'任务名称', max_length=255)
-    problem = models.ManyToManyField(Problem, related_name='Task')
 
-    plans = GenericRelation(Plan)
 
+class Task1(models.Model):
+    desc = models.CharField(u'任务名称', max_length=255)
+
+
+class Task(models.Model):
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')
@@ -57,14 +33,6 @@ class Task2(models.Model):
 class Plan(models.Model):
     name = models.CharField(u'计划名称', max_length=255)
     task = models.ManyToManyField(Task, related_name='Plan')
-
-    content_type = models.ForeignKey(ContentType)
-    object_id = models.PositiveIntegerField()
-    content_object = GenericForeignKey('content_type', 'object_id')
-
-
-# content = ContentType.objects.filter(app_label='school', model='plan').first()
-# response = models.OftenAskedQuestion.objects.filter(content_type=content, object_id=obj.pk).all()
 
 
 class Team(models.Model):
@@ -86,16 +54,16 @@ class Teacher(models.Model):
 
 class Check(models.Model):
     STATUS_CHOICES = (
-        (WAIT, u'等待'),
-        (ACCEPT, u'通过'),
-        (REFUSE, u'拒绝'),
+        ("1", u'等待'),
+        ("2", u'通过'),
+        ("3", u'拒绝'),
     )
 
     name = models.CharField(u'审核名称', max_length=255)
     student = models.ForeignKey(Student)
     teacher = models.ForeignKey(Teacher)
     status = models.CharField(u'审核状态', max_length=10,
-                              choices=STATUS_CHOICES, default=WAIT)
+                              choices=STATUS_CHOICES, default=u"等待")
 
     # Task.objects.filter(Plan__Team__Teacher__pk=1)
     # related_name设置问题
