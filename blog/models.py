@@ -9,8 +9,6 @@ from taggit.managers import TaggableManager
 
 from django.dispatch import Signal
 
-# Create your models here.
-
 
 class Tags(models.Model):
     '''标签表'''
